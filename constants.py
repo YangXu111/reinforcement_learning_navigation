@@ -7,7 +7,7 @@ CONSTANTS = {
     'memory_size': 1000,
     'update_interval': 4,
     'sample_size': 64,
-    'num_episodes': 6000,
+    'num_episodes': 2000,
     'epsilon_begin': 1,
     'epsilon_stable': 0.01
 }

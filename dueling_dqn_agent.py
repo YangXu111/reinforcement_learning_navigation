@@ -30,7 +30,7 @@ class Network(nn.Module):
 
 
 class DuelingDQNAgent(DQNAgent):
-    def _initiate_network(self, state_size, action_size, use_cnn_network):
+    def _initiate_network(self, state_size, action_size):
         self.target_network = Network(state_size, action_size).to(device)
         self.network = Network(state_size, action_size).to(device)
 

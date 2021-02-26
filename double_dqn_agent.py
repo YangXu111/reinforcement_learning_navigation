@@ -27,16 +27,17 @@ class DoubleDQNAgent(DQNAgent):
         self.optimizer.step()
         self.update_target_network()
 
-        if self.replay_memory.len() == C['memory_size']:
-            with torch.no_grad():
-                max_actions = torch.argmax(self.network(next_states), 1).unsqueeze(1)
-                target_q = rewards + gamma * self.target_network(next_states).gather(1, max_actions) * (1 - dones)
-                current_q = self.network(states).gather(1, actions)
-            post_delta = (target_q - current_q).cpu().numpy().squeeze().astype(float)
-            plt.figure(figsize=(20, 4))
-            plt.plot(prev_delta, 'bo')
-            plt.plot(post_delta, 'mo')
-            plt.show()
+        # Plot to check Q value delta before and after network update
+        # if self.replay_memory.len() == C['memory_size']:
+        #     with torch.no_grad():
+        #         max_actions = torch.argmax(self.network(next_states), 1).unsqueeze(1)
+        #         target_q = rewards + gamma * self.target_network(next_states).gather(1, max_actions) * (1 - dones)
+        #         current_q = self.network(states).gather(1, actions)
+        #     post_delta = (target_q - current_q).cpu().numpy().squeeze().astype(float)
+        #     plt.figure(figsize=(20, 4))
+        #     plt.plot(prev_delta, 'bo')
+        #     plt.plot(post_delta, 'mo')
+        #     plt.show()
 
 
 

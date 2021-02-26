@@ -20,6 +20,7 @@ class Network(nn.Module):
         self.fc2 = nn.Linear(C['hidden_layer_size'], C['hidden_layer_size'])
         self.fc3 = nn.Linear(C['hidden_layer_size'], C['hidden_layer_size'])
         self.output = nn.Linear(C['hidden_layer_size'], output_size)
+        print('Regular network created')
 
     def forward(self, state):
         x = F.relu(self.fc1(state))
@@ -40,6 +41,7 @@ class CnnNetwork(nn.Module):
         self.fc1 = nn.Linear(20**2 * 256, 500)
         self.fc2 = nn.Linear(500, 500)
         self.fc3 = nn.Linear(500, 4)
+        print('CNN network created')
 
     def forward(self, state):
         x = F.relu(self.conv1(state))
@@ -66,15 +68,17 @@ class TransferLearningNetwork(nn.Module):
         ]))
 
         self.model.classifier = tailnet
+        print('Densenet121 network created')
 
     def forward(self, state):
         return self.model(state)
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, use_cnn_network=False):
+    def __init__(self, state_size, action_size, use_cnn_network=False, transfer_learning=False):
         self.use_cnn_network = use_cnn_network
-        self._initiate_network(state_size, action_size, use_cnn_network)
+        self.transfer_learning = transfer_learning
+        self._initiate_network(state_size, action_size)
         self.action_size = action_size
         self.counter = 0
         self.replay_memory = self._initiate_memory()
@@ -84,13 +88,14 @@ class DQNAgent:
         self.transform = transforms.Compose([transforms.Resize(224),
                                              transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))])
 
-    def _initiate_network(self, state_size, action_size, use_cnn_network):
-        if not use_cnn_network:
+    def _initiate_network(self, state_size, action_size):
+        if not self.use_cnn_network:
             self.target_network = Network(state_size, action_size).to(device)
             self.network = Network(state_size, action_size).to(device)
+        elif self.transfer_learning:
+            self.target_network = TransferLearningNetwork(action_size).to(device)
+            self.network = TransferLearningNetwork(action_size).to(device)
         else:
-            # self.target_network = TransferLearningNetwork(action_size).to(device)
-            # self.network = TransferLearningNetwork(action_size).to(device)
             self.target_network = CnnNetwork(action_size).to(device)
             self.network = CnnNetwork(action_size).to(device)
 
@@ -98,15 +103,17 @@ class DQNAgent:
         return ReplayMemory()
 
     def _param_for_optimizer(self):
-        # if self.use_cnn_network:
-        #     return self.network.model.classifier.parameters()
+        if self.use_cnn_network and self.transfer_learning:
+            return self.network.model.classifier.parameters()
         return self.network.parameters()
 
     def preprocessing(self, state):
-        result = torch.tensor(state).to(device).transpose(0, 3).float().squeeze().unsqueeze(0)
-        # if self.use_cnn_network:
-        #     return self.transform(result)
-        return result
+        if self.use_cnn_network:
+            result = torch.tensor(state).to(device).transpose(0, 3).float().squeeze().unsqueeze(0)
+            if self.transfer_learning:
+                return self.transform(result)
+            return result
+        return torch.tensor(state).to(device).float()
 
     def action(self, state, **kwargs):
         """
@@ -141,7 +148,6 @@ class DQNAgent:
         """
         gamma = C['gamma']
         states, actions, rewards, next_states, dones = self.replay_memory.sample()
-
         # print(states.size(), actions.size(), rewards.size(), next_states.size(), dones.size())
         target_q = rewards + gamma * self.target_network(next_states).detach().max(dim=1)[0].unsqueeze(1) * (1-dones)
         current_q = self.network(states).gather(1, actions)
@@ -195,11 +201,11 @@ class ReplayMemory:
         return self._format_samples(experiences)
 
     def _format_samples(self, experiences):
-        states = torch.vstack([e.state for e in experiences])  # fixed float()
+        states = torch.vstack([e.state for e in experiences]) # float
         actions = torch.tensor([e.action for e in experiences]).unsqueeze(1).to(device)
         rewards = torch.tensor([e.reward for e in experiences]).unsqueeze(1).to(device)
-        next_states = torch.vstack([e.next_state for e in experiences])  # fixed float()
-        dones = torch.tensor([e.done for e in experiences]).long().unsqueeze(1).to(device)  # fixed long()
+        next_states = torch.vstack([e.next_state for e in experiences])  # float
+        dones = torch.tensor([e.done for e in experiences]).long().unsqueeze(1).to(device)  # long
 
         return states, actions, rewards, next_states, dones
 
