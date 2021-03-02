@@ -23,14 +23,14 @@ The task is episodic, and in order to solve the environment, the agent must get 
 ## Getting Started
 ### Set Up the Virtual Environment and Install Dependencies
 First set up the virtual environment and install dependencies in requirements.txt. To create a virtual environment, decide upon a directory where you want to place it, and run the venv module as a script with the directory path:  
-`python3 -m venv \<path to the target directory>`
+`python3 -m venv <path to the target directory>`
 
 Once you’ve created a virtual environment, you may activate it.  
 - On Windows, run:  
 `\<path to the target directory>\Scripts\activate.bat`
 
 - On Unix or MacOS, run:  
-`source \<path to the target directory>/bin/activate`
+`source <path to the target directory>/bin/activate`
 
 (This script is written for the bash shell. If you use the csh or fish shells, there are alternate activate.csh and activate.fish scripts you should use instead.)
 
@@ -50,7 +50,7 @@ After activating the environment, install the dependencies from requirements.txt
 
     (_For AWS_) If you'd like to train the agent on AWS (and have not [enabled a virtual screen](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Training-on-Amazon-Web-Service.md)), then please use [this link](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Linux_NoVis.zip) to obtain the environment.
 
-2. Place the file in the DRLND GitHub repository, in the `p1_navigation/` folder, and unzip (or decompress) the file. 
+2. Place the file into the `p1_navigation` folder, and unzip (or decompress) the file. 
 
 3. Open `main.ipynb` and follow the instructions to train the agent.
 
@@ -63,7 +63,7 @@ After activating the environment, install the dependencies from requirements.txt
 - Windows (64-bit): [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/VisualBanana_Windows_x86_64.zip)
 (_For AWS_) If you'd like to train the agent on AWS, you must follow the instructions to [set up X Server](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Training-on-Amazon-Web-Service.md), and then download the environment for the **Linux** operating system above.
 
-2. Place the file in the DRLND GitHub repository, in the `p1_navigation/` folder, and unzip (or decompress) the file.
+2. Place the file into the `p1_navigation` folder, and unzip (or decompress) the file.
 
 3. Open `main_visual.ipynb` and follow the instructions to train the agent.
 
